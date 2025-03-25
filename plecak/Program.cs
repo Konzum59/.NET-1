@@ -7,10 +7,16 @@ namespace plecak
     {
         public int Waga { get; set; }
         public int Wartosc { get; set; }
-        public Przedmiot(int waga, int wartosc)
+        public int Numer { get; set; }
+        public Przedmiot(int waga, int wartosc, int numer)
         {
             Waga = waga;
             Wartosc = wartosc;
+            Numer = numer;
+        }
+        public override string ToString()
+        {
+            return $"Item: {Numer}, Weight: {Waga}, Value:{Wartosc}\n";
         }
     }
     internal class Problem
@@ -21,14 +27,11 @@ namespace plecak
 
             List<Przedmiot> ListaPrzedmiotow = new List<Przedmiot>();
             for (int i = 0; i < n; i++) {
-                ListaPrzedmiotow.Add(new Przedmiot(random.Next(1,11), random.Next(1,11)));
+                ListaPrzedmiotow.Add(new Przedmiot(random.Next(1,11), random.Next(1,11), i+1));
+                Console.Write(ListaPrzedmiotow[i]);
             }
 
-            for (int i = 0; i < 10; i++)
-            {
-                Console.WriteLine(i + ". waga/wartosc: " + ListaPrzedmiotow[i].Waga+" " + ListaPrzedmiotow[i].Wartosc);
-            }
-            Solve solve = new Solve(capacity, n, ListaPrzedmiotow);
+            Solve solve = new Solve(capacity, ListaPrzedmiotow);
             
         }
     }
@@ -36,38 +39,46 @@ namespace plecak
     {
         public int Capacity { get; set; }
 
-        public Solve(int Capacity,int n, List<Przedmiot> ListaPrzedmiotow)
+        public Solve(int Capacity, List<Przedmiot> ListaPrzedmiotow)
         {
-            ListaPrzedmiotow.Sort((x,y)=>((double)x.Wartosc/(double)x.Waga).CompareTo((double)y.Wartosc/(double)y.Waga));
+            ListaPrzedmiotow.Sort((x,y)=>((double)x.Waga/(double)x.Wartosc).CompareTo((double)y.Waga/(double)y.Wartosc));
             int CurrentCapacity = 0;
             int CurrentValue = 0;
             List<int> PackedObjects = new List<int>();
            
-            for (int i = 0;i < n;i++) {
+            for (int i = 0;i < ListaPrzedmiotow.Count();i++) {
             if(Capacity>=CurrentCapacity+ListaPrzedmiotow[i].Waga) {
                 CurrentCapacity=CurrentCapacity+ListaPrzedmiotow[i].Waga;
                     CurrentValue += ListaPrzedmiotow[i].Wartosc;
-                    PackedObjects.Add(i);
-                    Console.WriteLine(i);
+                    PackedObjects.Add(ListaPrzedmiotow[i].Numer);
               }
             }
             Result result = new Result(PackedObjects, CurrentValue, CurrentCapacity);
+            Console.Write(result);
         }
     }
     internal class Result
     {
+        public string AllItems { get; set; }
+        public int MaxValue { get; set; }
+        public int MaxCapacity { get; set; }
         public Result(List<int> PackedObjects, int MaxValue, int MaxCapacity)
         {
-            string AllItems = "Packed objects: ";
-            
+            this.MaxCapacity = MaxCapacity;
+            this.MaxValue = MaxValue;
+
             foreach (var item in PackedObjects)
             {
                 AllItems=AllItems+item.ToString()+" ";
-                Console.WriteLine(AllItems);
             }
-            Console.WriteLine("Final value: "+MaxCapacity);
-            Console.WriteLine("Final capacity: "+MaxValue);
+            
+           
         }
+        public override string ToString()
+        {
+            return $"\n Packed items: {AllItems} \n Final capacity: {MaxCapacity} \n Final value: {MaxValue}";
+        }
+
     }
 
     internal class Program
@@ -82,6 +93,8 @@ namespace plecak
             int Capacity = int.Parse(Console.ReadLine());
 
             Problem problem = new Problem(ObjectsNumber, Seed, Capacity);
+            int Caapacity = int.Parse(Console.ReadLine());
+
         }
     }
 }
