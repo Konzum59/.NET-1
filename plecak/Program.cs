@@ -1,7 +1,9 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
+[assembly: InternalsVisibleTo("UnitTest"), InternalsVisibleTo("Gui")]
 
 namespace plecak
-{   
+{
     //klasa Solve ktra ma zwrci typ klasy result
     internal class Przedmiot
     {
@@ -21,58 +23,73 @@ namespace plecak
     }
     internal class Problem
     {
+        public List<Przedmiot> ListaPrzedmiotow { get; set; }
+        public int Capacity { get; }
         public Problem(int n, int seed, int capacity)
         {
+            Capacity = capacity;
+            ListaPrzedmiotow = new List<Przedmiot>();
             Random random = new Random(seed);
-
-            List<Przedmiot> ListaPrzedmiotow = new List<Przedmiot>();
-            for (int i = 0; i < n; i++) {
-                ListaPrzedmiotow.Add(new Przedmiot(random.Next(1,11), random.Next(1,11), i+1));
+            
+            for (int i = 0; i < n; i++)
+            {
+                ListaPrzedmiotow.Add(new Przedmiot(random.Next(1, 11), random.Next(1, 11), i + 1));
                 Console.Write(ListaPrzedmiotow[i]);
             }
 
-            Solve solve = new Solve(capacity, ListaPrzedmiotow);
-            
         }
-    }
-    internal class Solve
-    {
-        public int Capacity { get; set; }
+    
 
-        public Solve(int Capacity, List<Przedmiot> ListaPrzedmiotow)
+        public Result  Solve()
         {
-            ListaPrzedmiotow.Sort((x,y)=>((double)x.Waga/(double)x.Wartosc).CompareTo((double)y.Waga/(double)y.Wartosc));
+            ListaPrzedmiotow.Sort((x, y) => ((double)x.Waga / (double)x.Wartosc).CompareTo((double)y.Waga / (double)y.Wartosc));
             int CurrentCapacity = 0;
             int CurrentValue = 0;
             List<int> PackedObjects = new List<int>();
-           
-            for (int i = 0;i < ListaPrzedmiotow.Count();i++) {
-            if(Capacity>=CurrentCapacity+ListaPrzedmiotow[i].Waga) {
-                CurrentCapacity=CurrentCapacity+ListaPrzedmiotow[i].Waga;
+
+            for (int i = 0; i < ListaPrzedmiotow.Count(); i++)
+            {
+                if (Capacity >= CurrentCapacity + ListaPrzedmiotow[i].Waga)
+                {
+                    CurrentCapacity +=  ListaPrzedmiotow[i].Waga;
                     CurrentValue += ListaPrzedmiotow[i].Wartosc;
                     PackedObjects.Add(ListaPrzedmiotow[i].Numer);
-              }
+                }
             }
             Result result = new Result(PackedObjects, CurrentValue, CurrentCapacity);
             Console.Write(result);
+            return result;
+            
+        }
+        public override string ToString()
+        {
+            string FullList = " ";
+            foreach (var item in ListaPrzedmiotow)
+            {
+                FullList += item.ToString();
+            }
+            return FullList;
         }
     }
     internal class Result
     {
-        public string AllItems { get; set; }
+        public string AllItems{ get; set; }
+        public List<int> PackedObjects { get; set; }
         public int MaxValue { get; set; }
         public int MaxCapacity { get; set; }
-        public Result(List<int> PackedObjects, int MaxValue, int MaxCapacity)
+        public Result(List<int> packedObjects, int maxValue, int maxCapacity)
         {
-            this.MaxCapacity = MaxCapacity;
-            this.MaxValue = MaxValue;
+            AllItems = "";
+            PackedObjects = packedObjects;
+            MaxCapacity = maxCapacity;
+            MaxValue = maxValue;
 
             foreach (var item in PackedObjects)
             {
-                AllItems=AllItems+item.ToString()+" ";
+                AllItems = AllItems + item.ToString() + " ";
             }
-            
-           
+
+
         }
         public override string ToString()
         {
@@ -93,6 +110,12 @@ namespace plecak
             int Capacity = int.Parse(Console.ReadLine());
 
             Problem problem = new Problem(ObjectsNumber, Seed, Capacity);
+            Result result = problem.Solve();
+            Console.WriteLine(result.AllItems);
+            Console.WriteLine(result.MaxCapacity);
+            Console.WriteLine(result.MaxValue);
+            Console.WriteLine(problem);
+            
             int Caapacity = int.Parse(Console.ReadLine());
 
         }
